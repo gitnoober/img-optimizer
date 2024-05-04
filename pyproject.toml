@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "img-optimizer"
+version = "0.1.0"
+description = "Hobby project for building my own image optimizer cli tool"
+authors = ["Priyanshu Singh <priyanshusingh349@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pillow = "^10.3.0"
+requests = "^2.31.0"
+PyTermGUI = "^7.7.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
