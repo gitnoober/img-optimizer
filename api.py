@@ -1,16 +1,79 @@
 import time
+from pprint import pprint
 
 import pytermgui as ptg
+
+CONFIG = """
+config:
+    InputField:
+        styles:
+            prompt: dim italic
+            cursor: '@72'
+    Label:
+        styles:
+            value: dim bold
+
+    Window:
+        styles:
+            border: '60'
+            corner: '60'
+
+    Container:
+        styles:
+            border: '96'
+"""
 
 
 def macro_time(fmt: str) -> str:
     return time.strftime(fmt)
 
 
-ptg.tim.define("!time", macro_time)
+OUTPUT = {}
 
-with ptg.WindowManager() as manager:
-    manager.layout.add_slot("Body")
-    manager.add(
-        ptg.Window("[bold]The current time is:[/]\n\n[!time 75]%c", box="EMPTY")
-    )
+
+def submit(manager: ptg.WindowManager, window: ptg.Window) -> None:
+    for widget in window:
+        if isinstance(widget, ptg.InputField):
+            OUTPUT[widget.prompt] = widget.value
+            continue
+
+        if isinstance(widget, ptg.Container):
+            label, field = iter(widget)
+            OUTPUT[label.value] = field.value
+
+    manager.stop()
+
+
+if __name__ == "__main__":
+    with ptg.YamlLoader() as loader:
+        loader.load(CONFIG)
+
+    with ptg.WindowManager() as manager:
+        window = (
+            ptg.Window(
+                "",
+                ptg.InputField("Balazs", prompt="Name: "),
+                ptg.InputField("Some street", prompt="Address: "),
+                ptg.InputField("+11 0 123 456", prompt="Phone number: "),
+                "",
+                ptg.Container(
+                    "Additional notes:",
+                    ptg.InputField(
+                        "A whole bunch of\nMeaningful notes\nand stuff", multiline=True
+                    ),
+                    box="EMPTY_VERTICAL",
+                ),
+                "",
+                ["Submit", lambda *_: submit(manager, window)],
+                width=60,
+                box="DOUBLE",
+            )
+            .set_title("[210 bold]New contact")
+            .center()
+        )
+        # For the screenshot's sake
+        window.select(0)
+
+        manager.add(window)
+
+pprint(OUTPUT)
